@@ -11,7 +11,7 @@ import {
   Text,
   Button,
   FlatList,
-
+  TouchableNativeFeedback,
   View
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
@@ -25,7 +25,11 @@ export default class nyobain_lagi extends Component {
 
     constructor (props) {
       super(props)
-      this.state = { data: Array.from(data) }
+      this.state = { data: [] }
+    }
+
+    componentDidMount() {
+      this.requestDataPerson();
     }
 
     renderSeparator = () => {
@@ -41,16 +45,36 @@ export default class nyobain_lagi extends Component {
       );
     };
 
+    requestDataPerson = () => {
+      const url = 'http://api.trycatch.id/api/persons';
+      fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          this.setState({
+            data: res.data,
+            error: res.error || null,
+          });
+        })
+        .catch(error => {
+          this.setState({ error });
+        });
+    };
+
     render() {
       return (
-        <List >
-        <FlatList
-            data={this.state.data}
-            ItemSeparatorComponent={this.renderSeparator}
-            keyExtractor={(item, index) => item.id}
-            renderItem={({item, index}) =><ListItem title={item.first_name} subtitle={item.email}/> }
-          />
-          </List>
+
+          <FlatList
+              data={this.state.data}
+              ItemSeparatorComponent={this.renderSeparator}
+              keyExtractor={(item, index) => item.id}
+              renderItem={({item, index}) => (
+                  <TouchableNativeFeedback background={TouchableNativeFeedback.SelectableBackground()} >
+                    <ListItem style={styles.listaja} title={item.first_name} subtitle={item.phone_number} />
+                  </TouchableNativeFeedback>
+              )}
+              containerStyle={{ borderBottomWidth: 0 }}
+            />
+
 
       );
     }
@@ -151,7 +175,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fafafa'
   },
   listaja:{
-    padding:20,
+    backgroundColor: '#fafafa',
+    padding:10,
   }
 });
 
